@@ -2,13 +2,13 @@
 import sys
 import gi
 
+# pylint: disable=wrong-import-position
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
+from main_window import MainWindow
 
 
 def main_app():
-    from main_window import MainWindow
-
     # Apply Style
     style_provider = Gtk.CssProvider()
     style_provider.load_from_path("style.css")

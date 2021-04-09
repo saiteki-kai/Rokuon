@@ -22,7 +22,7 @@ class Recorder:
             "sink_properties=device.description=record-audio",
         ]
         output = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
-        return int(output.stdout.strip())
+        self.record_module_id = int(output.stdout.strip())
 
     def unload_record_module(self):
         if self.record_module_id:
@@ -53,9 +53,9 @@ class Recorder:
         return sinks, clients
 
     def record_start(self, index):
-        sinks, clients = self.load_sink_inputs()
+        sinks, _ = self.load_sink_inputs()
         self.sink = sinks[index]
-        self.record_module_id = self.load_record_module(self.sink)
+        self.load_record_module(self.sink)
         os.system(f"pactl move-sink-input {index} record-audio")
 
         self.subp = subprocess.Popen(
@@ -67,7 +67,7 @@ class Recorder:
 
     def record_stop(self):
         # Send CTRL+C to stop the recording
-        if (self.subp):
+        if self.subp:
             self.subp.send_signal(signal.SIGINT)
             self.subp = None
 
