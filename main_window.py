@@ -3,17 +3,26 @@ from pulse_recorder import Recorder
 
 
 class MainWindow:
-    def __init__(self):
+    def __init__(self, app):
+        self.app = app
+
         self.builder = Gtk.Builder()
         self.builder.add_from_file("main_window.ui")
         self.builder.connect_signals(self)
 
         self.window = self.builder.get_object("main_window")
-        self.window.show_all()
+        self.window.set_application(self.app)
+
+        # Setup Menu
+        self.builder.add_from_file("menubar.ui")
+        menu_btn = self.builder.get_object("menu_btn")
+        menu = self.builder.get_object("appmenu")
+        menu_btn.set_menu_model(menu)
 
         self.selected_index = None
         self.recorder = Recorder()
 
+        self.record_list = self.builder.get_object("record_list")
         self.source_store = self.builder.get_object("source_store")
         self.source_combo = self.builder.get_object("source_combo")
 
@@ -21,10 +30,14 @@ class MainWindow:
         self.populate_sources()
 
         self.change_record_state()
+        self.add_record()
+
+    def show(self):
+        self.window.show_all()
 
     def destroy(self, _):
         self.recorder.record_stop()
-        Gtk.main_quit()
+        self.window.destroy()
 
     def on_record_btn_toggled(self, button):
         self.change_record_state()
@@ -36,6 +49,7 @@ class MainWindow:
         else:
             print("off")
             self.recorder.record_stop()
+            self.add_record()
 
     def change_record_state(self):
         button = self.builder.get_object("record_btn")
@@ -82,3 +96,24 @@ class MainWindow:
 
         if self.source_combo.get_active() == -1:
             self.source_combo.set_active(0)
+
+    def add_record(self):
+        # TODO: delete / save
+        # TODO: edit title
+        row = Gtk.ListBoxRow()
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        hbox.set_margin_top(10)
+        hbox.set_margin_bottom(10)
+        hbox.set_margin_start(10)
+        hbox.set_margin_end(10)
+        row.add(hbox)
+        label = Gtk.Label("filename.mp3", xalign=0)
+        check = Gtk.Button("Save")
+        hbox.pack_start(label, True, True, 0)
+        hbox.pack_start(check, False, True, 0)
+        self.record_list.add(row)
+        self.record_list.show_all()
+
+    def save_record(self):
+        # move file
+        pass
