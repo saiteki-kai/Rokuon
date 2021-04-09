@@ -5,5 +5,5 @@
 - [ ] Application Icons
 - [ ] Change Filename
 - [ ] Save Folder
-- [ ] Refresh List Button
+- [x] Refresh List Button
 - [ ] Check Exceptions
