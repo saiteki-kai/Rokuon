@@ -1,5 +1,6 @@
 appdirs==1.4.4
 astroid==2.5.3
+audioread==2.1.9
 black==20.8b1
 click==7.1.2
 isort==5.8.0
