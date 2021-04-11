@@ -2,7 +2,6 @@
 import re
 import subprocess
 import os
-import signal
 
 
 class Recorder:
@@ -52,23 +51,26 @@ class Recorder:
 
         return sinks, clients
 
-    def record_start(self, index):
+    def record_start(self, index, ext):
         sinks, _ = self.load_sink_inputs()
         self.sink = sinks[index]
+
         self.load_record_module(self.sink)
         os.system(f"pactl move-sink-input {index} record-audio")
 
         self.subp = subprocess.Popen(
-            """parec --format=s16le -d record-audio.monitor |  \
-            lame -r -q 3 --lowpass 17 --abr 192 - 'temp.mp3' > \
-            /dev/null &1>/dev/null""",
+            f"ffmpeg -f pulse -i record-audio.monitor -ac 2 temp.{ext}",
             shell=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
 
     def record_stop(self):
-        # Send CTRL+C to stop the recording
+        # Send "q" to stop the recording
         if self.subp:
-            self.subp.send_signal(signal.SIGINT)
+            self.subp.communicate(b"q")
+            self.subp.terminate()
             self.subp = None
 
         # Restore old sink input
