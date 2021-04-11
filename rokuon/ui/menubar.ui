@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <menu id="appmenu">
+  <menu id="app-menu">
     <section>
       <item>
         <attribute name="label">Preferences</attribute>
@@ -10,9 +10,15 @@
         <attribute name="label">Open Folder</attribute>
         <attribute name="action">app.openfolder</attribute>
       </item>
+    </section>
+    <section>
       <item>
-        <attribute name="label">About</attribute>
+        <attribute name="label">About Rokuon</attribute>
         <attribute name="action">app.about</attribute>
+      </item>
+      <item>
+        <attribute name="label">Quit</attribute>
+        <attribute name="action">app.quit</attribute>
       </item>
     </section>
   </menu>

@@ -17,7 +17,7 @@ class App(Gtk.Application):
         self.load_css()
 
         if not self.window:
-            self.window = MainWindow(application=self)
+            self.window = MainWindow(app=self)
 
         self.window.show()
 
@@ -34,6 +34,10 @@ class App(Gtk.Application):
 
         action = Gio.SimpleAction(name="about")
         action.connect("activate", self.on_about)
+        self.add_action(action)
+
+        action = Gio.SimpleAction(name="quit")
+        action.connect("activate", self.on_quit)
         self.add_action(action)
 
     def do_shutdown(self):
@@ -59,6 +63,10 @@ class App(Gtk.Application):
         print("on_about")
         # about_dialog = Gtk.AboutDialog(modal=True)
         # about_dialog.present()
+
+    def on_quit(self, _, __):
+        print("quit")
+        self.quit()
 
 
 if __name__ == "__main__":

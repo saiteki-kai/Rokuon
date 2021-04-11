@@ -8,3 +8,8 @@
 #record_btn.is-active {
   background: #109b26;
 }
+
+#save_btn {
+  color: #fff;
+  background: #118fe2;
+}
