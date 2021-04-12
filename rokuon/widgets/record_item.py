@@ -1,24 +1,28 @@
+import os
 from gi.repository import Gtk
+from rokuon.constants import ui_directory
+
+UI_RECORD_ITEM = os.path.join(ui_directory, "record_item.ui")
 
 
 class RecordItem(Gtk.ListBoxRow):
-    def __init__(self, filename, time, weight, delete_cb):
+    def __init__(self, filename, time, size, delete_cb):
         Gtk.ListBoxRow.__init__(self)
 
         self.filename = filename
         self.delete_cb = delete_cb
 
         self.builder = Gtk.Builder()
-        self.builder.add_from_file("ui/record_item.ui")
+        self.builder.add_from_file(UI_RECORD_ITEM)
         self.builder.connect_signals(self)
 
         filename_lbl = self.builder.get_object("filename_lbl")
         time_lbl = self.builder.get_object("time_lbl")
-        weight_lbl = self.builder.get_object("weight_lbl")
+        size_lbl = self.builder.get_object("size_lbl")
 
         filename_lbl.set_text(filename)
         time_lbl.set_text(time)
-        weight_lbl.set_text(weight)
+        size_lbl.set_text(size)
 
         hbox = self.builder.get_object("record_item")
         self.add(hbox)
@@ -28,4 +32,3 @@ class RecordItem(Gtk.ListBoxRow):
 
     def on_play_btn_clicked(self, _):
         print("play")
-

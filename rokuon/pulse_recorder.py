@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import re
 import subprocess
 import os
@@ -54,7 +53,6 @@ class Recorder:
     def record_start(self, index, ext):
         sinks, _ = self.load_sink_inputs()
         self.sink = sinks[index]
-
         self.load_record_module(self.sink)
         os.system(f"pactl move-sink-input {index} record-audio")
 

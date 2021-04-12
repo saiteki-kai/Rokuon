@@ -2,6 +2,9 @@ import os
 import shutil
 from time import time
 from gi.repository import Gtk
+from rokuon.constants import ui_directory, tmp_directory
+
+UI_NEW_RECORD = os.path.join(ui_directory, "new_record.ui")
 
 
 class NewRecord(Gtk.ListBoxRow):
@@ -11,7 +14,7 @@ class NewRecord(Gtk.ListBoxRow):
         self.save_cb = save_cb
 
         self.builder = Gtk.Builder()
-        self.builder.add_from_file("ui/new_record.ui")
+        self.builder.add_from_file(UI_NEW_RECORD)
         self.builder.connect_signals(self)
 
         ext = "mp3"
@@ -23,8 +26,9 @@ class NewRecord(Gtk.ListBoxRow):
 
     def on_save_btn_clicked(self, _):
         filename = self.entry.get_text()
+        tmp_file = os.path.join(tmp_directory, "temp.mp3")
 
-        if filename and not filename.isspace():
+        if filename and not filename.isspace() and os.path.exists(tmp_file):
             dest_dir = os.path.join(os.path.expanduser("~"), "Audio")
-            shutil.move("temp.mp3", f"{dest_dir}/{filename}")
+            shutil.move(tmp_file, f"{dest_dir}/{filename}")
         self.save_cb()

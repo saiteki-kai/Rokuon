@@ -1,24 +1,22 @@
-#!/usr/bin/env python3
-import sys
+import os
 import gi
 
 # pylint: disable=wrong-import-position
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, Gio
-from main_window import MainWindow
+from rokuon.views.main_window import MainWindow
+from rokuon.constants import ui_directory
 
 
-class App(Gtk.Application):
+class Application(Gtk.Application):
     def __init__(self):
         Gtk.Application.__init__(self)
+        # self.load_css()
         self.window = None
 
     def do_activate(self):
-        self.load_css()
-
         if not self.window:
             self.window = MainWindow(app=self)
-
         self.window.show()
 
     def do_startup(self):
@@ -45,12 +43,12 @@ class App(Gtk.Application):
 
     def load_css(self):
         style_provider = Gtk.CssProvider()
-        style_provider.load_from_path("style.css")
+        style_provider.load_from_path(os.path.join(ui_directory, "style.css"))
         screen = Gdk.Screen.get_default()
         Gtk.StyleContext.add_provider_for_screen(
             screen,
             style_provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_USER,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
         )
 
     def on_preferences(self, _, __):
@@ -67,8 +65,3 @@ class App(Gtk.Application):
     def on_quit(self, _, __):
         print("quit")
         self.quit()
-
-
-if __name__ == "__main__":
-    app = App()
-    sys.exit(app.run(sys.argv))

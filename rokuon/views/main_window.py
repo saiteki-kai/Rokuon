@@ -1,9 +1,15 @@
 import os
 from gi.repository import Gtk
-from pulse_recorder import Recorder
-from utils import get_file_duration, get_file_size
 
-dirpath = os.path.join(os.path.expanduser("~"), "Audio")
+from rokuon.pulse_recorder import Recorder
+from rokuon.utils import get_file_duration, get_file_size
+from rokuon.constants import ui_directory, save_directory
+
+from rokuon.widgets.new_record import NewRecord
+from rokuon.widgets.record_item import RecordItem
+
+UI_MAIN_WINDOW = os.path.join(ui_directory, "main_window.ui")
+UI_MENUBAR = os.path.join(ui_directory, "menubar.ui")
 
 
 class MainWindow:
@@ -11,14 +17,14 @@ class MainWindow:
         self.app = app
 
         self.builder = Gtk.Builder()
-        self.builder.add_from_file("ui/main_window.ui")
+        self.builder.add_from_file(UI_MAIN_WINDOW)
         self.builder.connect_signals(self)
 
         self.window = self.builder.get_object("main_window")
         self.window.set_application(self.app)
 
         # Setup Menu
-        self.builder.add_from_file("ui/menubar.ui")
+        self.builder.add_from_file(UI_MENUBAR)
         menu_btn = self.builder.get_object("menu_btn")
         menu = self.builder.get_object("app-menu")
         menu_btn.set_menu_model(menu)
@@ -48,17 +54,18 @@ class MainWindow:
         self.change_record_state()
 
         if button.get_active():
-            print("on")
-            print(self.selected_index)
-            self.recorder.record_start(self.selected_index, "mp3")
+            try:
+                self.recorder.record_start(self.selected_index, "mp3")
+            except RuntimeError as err:
+                print(err)
+                button.set_active(True)
+                self.change_record_state()
         else:
-            print("off")
             self.recorder.record_stop()
             self.add_record()
 
     def change_record_state(self):
         icon = Gtk.Image()
-        label = None
 
         if self.record_btn.get_active():
             label = "Stop"
@@ -99,6 +106,7 @@ class MainWindow:
         _, clients = self.recorder.load_sink_inputs()
 
         self.source_store.clear()
+        self.source_combo.set_active(-1)
         for index, item in clients.items():
             self.source_store.append([index, item])
 
@@ -106,8 +114,6 @@ class MainWindow:
             self.source_combo.set_active(0)
 
     def add_record(self):
-        from new_record import NewRecord
-
         row = NewRecord(save_cb=self.on_save)
         self.record_list.add(row)
         self.record_list.show_all()
@@ -116,10 +122,8 @@ class MainWindow:
         for child in self.record_list.get_children():
             self.record_list.remove(child)
 
-        from record_item import RecordItem
-
-        for file in os.listdir(dirpath):
-            filepath = os.path.join(dirpath, file)
+        for file in os.listdir(save_directory):
+            filepath = os.path.join(save_directory, file)
 
             duration = get_file_duration(filepath)
             size = get_file_size(filepath)
@@ -132,7 +136,7 @@ class MainWindow:
         self.update_source_list()
 
     def on_delete(self, filename):
-        filepath = os.path.join(dirpath, filename)
+        filepath = os.path.join(save_directory, filename)
         # TODO: add confirm dialog
         os.remove(filepath)
         self.update_source_list()
