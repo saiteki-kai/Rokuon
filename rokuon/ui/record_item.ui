@@ -66,7 +66,7 @@
       </packing>
     </child>
     <child>
-      <object class="GtkLabel" id="weight_lbl">
+      <object class="GtkLabel" id="size_lbl">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="margin_left">8</property>
