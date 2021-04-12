@@ -2,6 +2,8 @@ import re
 import subprocess
 import os
 
+from rokuon.constants import tmp_directory
+
 
 class Recorder:
     def __init__(self):
@@ -52,12 +54,24 @@ class Recorder:
 
     def record_start(self, index, ext):
         sinks, _ = self.load_sink_inputs()
+
+        if len(sinks) == 0:
+            raise RuntimeError("no sink inputs found")
+        if index < 0:
+            raise RuntimeError("invalid index")
+
         self.sink = sinks[index]
         self.load_record_module(self.sink)
+
+        if not self.record_module_id:
+            raise RuntimeError("module not available")
+
         os.system(f"pactl move-sink-input {index} record-audio")
 
+        tmp_file = os.path.join(tmp_directory, f"temp.{ext}")
+
         self.subp = subprocess.Popen(
-            f"ffmpeg -f pulse -i record-audio.monitor -ac 2 temp.{ext}",
+            f"ffmpeg -f pulse -i record-audio.monitor -ac 2 {tmp_file}",
             shell=True,
             stdin=subprocess.PIPE,
             stdout=subprocess.DEVNULL,
