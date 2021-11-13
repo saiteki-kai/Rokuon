@@ -7,6 +7,7 @@ from rokuon.constants import ui_directory, save_directory
 
 from rokuon.widgets.new_record import NewRecord
 from rokuon.widgets.record_item import RecordItem
+from rokuon.widgets.destroy_dialog import DestroyDialog
 
 UI_MAIN_WINDOW = os.path.join(ui_directory, "main_window.ui")
 UI_MENUBAR = os.path.join(ui_directory, "menubar.ui")
@@ -22,6 +23,7 @@ class MainWindow:
 
         self.window = self.builder.get_object("main_window")
         self.window.set_application(self.app)
+        self.window.set_keep_above(True)
 
         # Setup Menu
         self.builder.add_from_file(UI_MENUBAR)
@@ -125,6 +127,10 @@ class MainWindow:
         for file in os.listdir(save_directory):
             filepath = os.path.join(save_directory, file)
 
+            # skip directories
+            if os.path.isdir(filepath):
+                continue
+
             duration = get_file_duration(filepath)
             size = get_file_size(filepath)
 
@@ -136,7 +142,12 @@ class MainWindow:
         self.update_source_list()
 
     def on_delete(self, filename):
-        filepath = os.path.join(save_directory, filename)
-        # TODO: add confirm dialog
-        os.remove(filepath)
-        self.update_source_list()
+        dialog = DestroyDialog(self.window, filename)
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            filepath = os.path.join(save_directory, filename)
+            os.remove(filepath)
+            self.update_source_list()
+
+        dialog.destroy()
