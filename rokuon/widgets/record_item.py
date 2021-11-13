@@ -1,6 +1,6 @@
 import os
 from gi.repository import Gtk
-from rokuon.constants import ui_directory
+from rokuon.constants import ui_directory, save_directory
 
 UI_RECORD_ITEM = os.path.join(ui_directory, "record_item.ui")
 
@@ -22,7 +22,10 @@ class RecordItem(Gtk.ListBoxRow):
 
         filename_lbl.set_text(filename)
         time_lbl.set_text(time)
-        size_lbl.set_text(size)
+        size_lbl.set_text(size.rjust(4, '0'))
+        # TODO: align better the label
+        # IDEA: testo a sinistra con dimensione fissa, il tempo
+        # ha sempre la stessa lunghezza, si allinea la size a sinistra ??
 
         hbox = self.builder.get_object("record_item")
         self.add(hbox)
@@ -31,4 +34,14 @@ class RecordItem(Gtk.ListBoxRow):
         self.delete_cb(self.filename)
 
     def on_play_btn_clicked(self, _):
-        print("play")
+        from pydub import AudioSegment
+        from pydub.playback import play
+        import threading
+
+        filepath = os.path.join(save_directory, self.filename)
+        sound = AudioSegment.from_file(filepath, 'mp3')
+
+        # TODO: handle only one play at time
+        # TODO: terminate thread when closing the app
+        t = threading.Thread(target=play, args=(sound,))
+        t.start()
